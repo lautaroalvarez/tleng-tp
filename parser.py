@@ -1,6 +1,12 @@
 import ply.yacc as yacc
 from lexer import tokens
 
+def p_initial(p):
+    'initial : value'
+    p[1] = {
+        "identacion": ''
+    }
+
 def p_value_lasttype(p):
     '''value : STRING
              | NUMBER
@@ -8,51 +14,51 @@ def p_value_lasttype(p):
              | FALSE
              | NULL
     '''
-    p[0] = "tipo basico"
+    print p[1]
 
 def p_value_object(p):
     'value : object'
-    p[0] = p[1]
+    p[1] = {
+        "identacion": p[0].identacion
+    }
 
 def p_value_array(p):
     'value : array'
-    p[0] = p[1]
+    p[1] = {
+        "identacion": p[0].identacion
+    }
 
 def p_object_empty(p):
     'object : LLLAVE RLLAVE'
-    p[0] = 'arreglo'
+    print '{}'
 
 def p_object_members(p):
     'object : LLLAVE members RLLAVE'
-    p[0] = p[2]
+    p[1] = {
+        "identacion": p[0].identacion
+    }
 
 def p_members_one(p):
     'members : pair'
-    p[0] = p[1]
 
 def p_members_multiple(p):
     'members : pair COMA members'
-    p[0] = p[1]
 
 def p_pair(p):
     'pair : STRING DOSPUNTOS value'
-    p[0] = p[3]
+    print p[1] + ' : '
 
 def p_array_empty(p):
     'array : LCORCHETE RCORCHETE'
-    p[0] = 'arreglo vacio'
 
 def p_array_elements(p):
     'array : LCORCHETE elements RCORCHETE'
-    p[0] = p[2]
 
 def p_elements_one(p):
     'elements : value'
-    p[0] = p[1]
 
 def p_elements_multiple(p):
     'elements : value COMA elements'
-    p[0] = p[1]
 
 def p_error(p):
     print("Error de sintaxis!")
