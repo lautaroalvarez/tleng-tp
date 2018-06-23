@@ -4,7 +4,8 @@ from lexer import tokens
 def p_initial(p):
     'initial : value'
     p[1] = {
-        "identacion": ''
+        "identacion": '',
+        "output": ''
     }
 
 def p_value_lasttype(p):
@@ -14,18 +15,21 @@ def p_value_lasttype(p):
              | FALSE
              | NULL
     '''
-    print p[1]
+    p[0] = {
+        "output": p[1]
+    }
 
 def p_value_object(p):
     'value : object'
     p[1] = {
-        "identacion": p[0].identacion
+        "identacion": p[0]["identacion"]
     }
+    p[0]["output"] = p[1]
 
 def p_value_array(p):
     'value : array'
     p[1] = {
-        "identacion": p[0].identacion
+        "identacion": p[0]["identacion"]
     }
 
 def p_object_empty(p):
@@ -35,18 +39,23 @@ def p_object_empty(p):
 def p_object_members(p):
     'object : LLLAVE members RLLAVE'
     p[1] = {
-        "identacion": p[0].identacion
+        "identacion": p[0]["identacion"]
     }
 
 def p_members_one(p):
     'members : pair'
+    p[0] = {
+        "output": p[1]
+    }
 
 def p_members_multiple(p):
     'members : pair COMA members'
 
 def p_pair(p):
     'pair : STRING DOSPUNTOS value'
-    print p[1] + ' : '
+    p[0] = {
+        "output": p[1] + ' : ' + p[3]["output"]
+    }
 
 def p_array_empty(p):
     'array : LCORCHETE RCORCHETE'
@@ -66,11 +75,14 @@ def p_error(p):
 
 parser = yacc.yacc()
 
-while True:
-   try:
-       s = raw_input('json > ')
-   except EOFError:
-       break
-   if not s: continue
-   result = parser.parse(s)
-   print(result)
+# while True:
+#    try:
+#        s = raw_input('json > ')
+#    except EOFError:
+#        break
+#    if not s: continue
+#    result = parser.parse(s)
+#    print(result)
+s = '{"a":1}'
+result = parser.parse(s)
+print(result)
