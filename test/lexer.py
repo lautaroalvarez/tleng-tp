@@ -25,12 +25,17 @@ t_DIVIDE  = r'/'
 t_LPAREN  = r'\('
 t_RPAREN  = r'\)'
 
+count=0
 # A regular expression rule with some action code
 def t_NUMBER(t):
     r'\d+'
+    global count
+    count = count +1
     t.value = int(t.value)
     return t
 
+def getCount():
+  return count
 # A string containing ignored characters (spaces, tabs and new lines)
 t_ignore  = ' \t\n'
 

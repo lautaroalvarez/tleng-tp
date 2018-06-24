@@ -1,12 +1,12 @@
 import ply.yacc as yacc
 from lexer import tokens
 
+indentation = 0
+
 def p_initial(p):
     'initial : value'
-    p[1] = {
-        "identacion": '',
-        "output": ''
-    }
+    p[0]=p[1]
+        
 
 def p_value_lasttype(p):
     '''value : STRING
@@ -15,63 +15,87 @@ def p_value_lasttype(p):
              | FALSE
              | NULL
     '''
-    p[0] = {
-        "output": p[1]
-    }
+    print(p[1])
+    p[0] = p[1]
 
 def p_value_object(p):
     'value : object'
-    p[1] = {
-        "identacion": p[0]["identacion"]
-    }
-    p[0]["output"] = p[1]
-
+    p[0] = p[1]
+    
 def p_value_array(p):
     'value : array'
-    p[1] = {
-        "identacion": p[0]["identacion"]
-    }
+    p[0] = p[1]
 
 def p_object_empty(p):
     'object : LLLAVE RLLAVE'
-    print '{}'
+    print('{}')
+    p[0] = "objeto vacio"
 
 def p_object_members(p):
-    'object : LLLAVE members RLLAVE'
-    p[1] = {
-        "identacion": p[0]["identacion"]
-    }
+    'object : LLLAVE  members  RLLAVE'
+    p[0] = p[2]    
 
 def p_members_one(p):
     'members : pair'
-    p[0] = {
-        "output": p[1]
-    }
+    p[0] = p[1]
 
 def p_members_multiple(p):
     'members : pair COMA members'
+    p[0] = p[1]
 
 def p_pair(p):
-    'pair : STRING DOSPUNTOS value'
-    p[0] = {
-        "output": p[1] + ' : ' + p[3]["output"]
-    }
+    'pair : STRING printString DOSPUNTOS value'
+    p[0] = p[4]
 
 def p_array_empty(p):
     'array : LCORCHETE RCORCHETE'
+    print('[]')
+    p[0] = "lista vacia"
 
 def p_array_elements(p):
-    'array : LCORCHETE elements RCORCHETE'
+    'array : LCORCHETE indentationP elements RCORCHETE indentationM'
+    p[0] = p[3]
 
 def p_elements_one(p):
-    'elements : value'
+    'elements : printV value'
+    p[0] = p[1]
 
 def p_elements_multiple(p):
-    'elements : value COMA elements'
+    'elements : printV value COMA elements'
+    p[0] = p[1]
+
+
+def p_printString(p):
+    'printString :'
+    string =p[-1]
+    if string[0]!="-": 
+        string = string.replace('"', '')     
+    print(string+":",end='')
+
+def p_indentation(p):
+    'indentation :'
+    
+def p_indentationP(p):
+    'indentationP :'
+    global indentation
+    indentation = indentation +1
+    print()
+
+def p_indentationM(p):
+    'indentationM :'
+    global indentation
+    indentation = indentation -1
+
+def p_printV(p):
+    'printV :'
+    for i in range(indentation):
+        print(" ",end='')
 
 def p_error(p):
     print("Error de sintaxis!")
     exit(1)
+
+
 
 parser = yacc.yacc()
 
@@ -83,6 +107,6 @@ parser = yacc.yacc()
 #    if not s: continue
 #    result = parser.parse(s)
 #    print(result)
-s = '{"a":1}'
+s = '{"a" :1,"b":2,"c":[1,2,3]}'
 result = parser.parse(s)
 print(result)
