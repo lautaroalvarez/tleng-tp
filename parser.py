@@ -107,6 +107,6 @@ parser = yacc.yacc()
 #    if not s: continue
 #    result = parser.parse(s)
 #    print(result)
-s = '{"a" :1,"b":2,"c":[1,2,3]}'
+s = '{"a" :1,"c":[1,2,3],"b":[3,4,{ "n":[2,3,3]}]}'
 result = parser.parse(s)
 print(result)
