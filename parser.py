@@ -88,7 +88,7 @@ def p_indentationM(p):
 
 def p_printV(p):
     'printV :'
-    for i in range(indentation):
+    for i in range(indentation*2):
         print(" ",end='')
 
 def p_error(p):
@@ -107,6 +107,6 @@ parser = yacc.yacc()
 #    if not s: continue
 #    result = parser.parse(s)
 #    print(result)
-s = '{"a" :1,"c":[1,2,3],"b":[3,4,{ "n":[2,3,3]}]}'
+s = '{"a" :1,"c":[1,2,3],"b":[3,4,{ "n":[2,3,3]},3]}'
 result = parser.parse(s)
 print(result)
