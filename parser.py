@@ -71,7 +71,8 @@ def p_printString(p):
     'printString :'
     global status
     string = p[-1]
-    if string[0] != '-':
+    stringAux = string.replace(' ', '')
+    if stringAux[1] != '-':
         string = string.replace('"', '')
     if not status['first']:
         printIndentation()
@@ -197,7 +198,7 @@ test2 = '''
 '''
 
 test3 = '''
-["asd",0,[],{"a":{},"b":1},[1,2]]
+["asd",0,[],{"a":{},"       -b":1},[1,2]]
 '''
 
 print('JSON:')
