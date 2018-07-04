@@ -1,5 +1,7 @@
 from __future__ import print_function
 import ply.yacc as yacc
+import os
+import sys
 from lexer import tokens
 
 status = {
@@ -152,58 +154,72 @@ def printIndentation():
 
 parser = yacc.yacc()
 
-# while True:
-#    try:
-#        s = raw_input('json > ')
-#    except EOFError:
-#        break
-#    if not s: continue
-#    result = parser.parse(s)
-#    print(result)
+arguments = len(sys.argv)
+if(arguments == 3 and sys.argv[1]=="-f"):
+    fileR = open(sys.argv[2],"r")
+    orig_stdout = sys.stdout
+    fileW = open("output.txt","w") 
+    sys.stdout = fileW
+    s = fileR.read()
+    result = parser.parse(s)
+    sys.stdout = orig_stdout
+    fileR.close()
+    fileW.close()
+elif(arguments == 1):
+    try:
+       s = input('json > ')
+    except EOFError:
+        print("Error in call")   
+    if s: 
+        result = parser.parse(s)
+        
+else:
+    print("Error in call")
 
-test1 = '''
-{
-    "a": [
-        1,
-        {
-            "b": 2,
-            "c": "asd",
-            "d": []
-        },
-        [
-            [3],
-            4,
-            [
-                5,
-                6,
-                [
-                    [7]
-                ]
-            ]
-        ],
-        8
-    ]
-}'''
 
-test2 = '''
-{
-  "a" :1,
-  "c":[1,2,3],
-  "b":[3,4,{ "n":[2,3,3,{"o":{"p":"fgh"}}],"m":"a"},3],
-  "d": {
-    "a": 1,
-    "b": "asd"
-  }
-}
-'''
+# test1 = '''
+# {
+#     "a": [
+#         1,
+#         {
+#             "b": 2,
+#             "c": "asd",
+#             "d": []
+#         },
+#         [
+#             [3],
+#             4,
+#             [
+#                 5,
+#                 6,
+#                 [
+#                     [7]
+#                 ]
+#             ]
+#         ],
+#         8
+#     ]
+# }'''
 
-test3 = '''
-["asd",0,[],{"a":{},"       -b":1},[1,2]]
-'''
+# test2 = '''
+# {
+#   "a" :1,
+#   "c":[1,2,3],
+#   "b":[3,4,{ "n":[2,3,3,{"o":{"p":"fgh"}}],"m":"a"},3],
+#   "d": {
+#     "a": 1,
+#     "b": "asd"
+#   }
+# }
+# '''
 
-print('JSON:')
-print(test3)
-print('')
-print('YAML:')
-result = parser.parse(test3)
-print('')
+# test3 = '''
+# ["asd",0,[],{"a":{},"       -b":1},[1,2]]
+# '''
+
+# print('JSON:')
+# print(test3)
+# print('')
+# print('YAML:')
+# result = parser.parse(test3)
+# print('')
