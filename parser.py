@@ -158,7 +158,7 @@ arguments = len(sys.argv)
 if(arguments == 3 and sys.argv[1]=="-f"):
     fileR = open(sys.argv[2],"r")
     orig_stdout = sys.stdout
-    fileW = open("output.txt","w") 
+    fileW = open("output.txt","w")
     sys.stdout = fileW
     s = fileR.read()
     result = parser.parse(s)
@@ -169,57 +169,9 @@ elif(arguments == 1):
     try:
        s = input('json > ')
     except EOFError:
-        print("Error in call")   
-    if s: 
+        print("Error in call")
+    if s:
         result = parser.parse(s)
-        
+
 else:
     print("Error in call")
-
-
-# test1 = '''
-# {
-#     "a": [
-#         1,
-#         {
-#             "b": 2,
-#             "c": "asd",
-#             "d": []
-#         },
-#         [
-#             [3],
-#             4,
-#             [
-#                 5,
-#                 6,
-#                 [
-#                     [7]
-#                 ]
-#             ]
-#         ],
-#         8
-#     ]
-# }'''
-
-# test2 = '''
-# {
-#   "a" :1,
-#   "c":[1,2,3],
-#   "b":[3,4,{ "n":[2,3,3,{"o":{"p":"fgh"}}],"m":"a"},3],
-#   "d": {
-#     "a": 1,
-#     "b": "asd"
-#   }
-# }
-# '''
-
-# test3 = '''
-# ["asd",0,[],{"a":{},"       -b":1},[1,2]]
-# '''
-
-# print('JSON:')
-# print(test3)
-# print('')
-# print('YAML:')
-# result = parser.parse(test3)
-# print('')
