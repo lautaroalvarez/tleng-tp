@@ -14,8 +14,8 @@ tokens = (
    'DOSPUNTOS',
 )
 
-t_STRING  = r'\"\"|\"[A-Za-z0-9\-]*\"' # Falta sacar los casos raros
-t_NUMBER  = r'\d+' # Falta revisar casos raros
+t_STRING  = r'\"([^"\\]+|\\(u[a-fA-F0-9]{4}|[\"\\\/bfnrt]))*\"'
+t_NUMBER  = r'\-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?'
 t_TRUE  = r'true'
 t_FALSE  = r'false'
 t_NULL  = r'null'
