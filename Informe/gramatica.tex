@@ -1,0 +1,15 @@
+\section{Gramática}
+
+Esta es la gramática original con la que se vio el problema. La misma fue tomada de la documentación de JSON \footnote{JSON: https://json.org}.
+
+$Value \xrightarrow{} \textit{string}\ |\ \textit{number}\ |\ Object\ |\ Array\ |\ \textit{true}\ |\ \textit{false}\ |\ \textit{null}$
+
+$Object \xrightarrow{} \{\}\ |\ \{ Member \}$
+
+$Member \xrightarrow{} \textit{string}:Value,Member\ |\  \textit{string}:Value$
+
+$Array \xrightarrow{} [\ ]\ |\ [Element]$
+
+$Element \xrightarrow{} Value,Element\ |\ Value$
+
+La única modificación que hicimos fue agregar un primer no terminal \textbf{S} que derive en Value. \textbf{S} pasa a ser nuestro inicial y gracias a eso podemos diferenciar y aplicar valores distintos al primer Value al que se deriva.

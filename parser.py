@@ -172,6 +172,5 @@ elif(arguments == 1):
         print("Error in call")
     if s:
         result = parser.parse(s)
-
 else:
     print("Error in call")

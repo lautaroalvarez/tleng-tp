@@ -1,0 +1,31 @@
+\section{Implementación}
+
+\subsection{Herramientas generales}
+Como herramienta principal usamos \textbf{PLY} \footnote{PLY: http://www.dabeaz.com/ply/}, que nos facilita la creación de parsers y lexers. Para el lexer utiliza expresiones regulares y para el parser permite definir producciones que son recorridas con la técnica LALR(1). A continuación vamos a describir cómo generamos ambas partes y qué determinaciones tuvimos que tomar para llegar al resultado final.
+
+\subsection{Lexer}
+Para identificar los distintos terminales utilizamos expresiones regulares. No necesitamos asignar valores ni hacer ningún procesamiento extra sobre los distintos tokens, ya que solo los imprimimos.
+
+Una observación interesante es que PLY permite dar una expresión regular para los elementos de la entrada que deseamos ignorar. En nuestro caso queremos ignorar los saltos de linea y espacios, porque no afectan a JSON.
+
+\subsection{Parser}
+Uno de los grandes desafíos de esta parte era controlar el orden de ejecución de las cosas. PLY nos simplifica la verificación de la cadena de entrada recorriendo las producciones que definimos y utilizando los tokens del lexer, pero no es sencillo ejecutar código en medio de una producción (si nos permite ingresar código luego de la misma). Esto lo que nos hacía era limitarnos a la hora de imprimir en un determinado orden y de diferenciar esa impresión dependiendo desde dónde deriva.
+
+Para esto agregamos producciones vacías que nos sirven para ejecutar código en medio de una producción. Por ejemplo:
+$$value \xrightarrow{} object$$
+fue transformado en
+$$value \xrightarrow{} saveStatusBeforeObject\ object$$
+y se agregó la producción:
+$$saveStatusBeforeObject \xrightarrow{} \lambda$$
+Con esto pudimos definir código que se ejecuta luego de \textit{saveStatusBeforeObject}, que significa que se ejecuta justo antes de entrar en \textit{object}. En este caso lo que hace es guardar el estado actual y aplicarle cambios que \textit{object} va a "heredar". Ahora vamos a entrar mas en detalle en lo que llamamos estado.
+
+Ni bien inicia el parser definimos un estado. Este estado consta de los siguientes campos:
+\begin{itemize}
+    \item \textbf{indentation}: contador de indentaciones. Esto es importante para poder indentar correctamente antes de escribir un valor.
+    \item \textbf{type}: tipo del padre (array/objeto). Esto es importante para saber, por ejemplo, si se debe imprimir un guión (si su padre es un array).
+    \item \textbf{parentType}: tipo del padre del padre. Esto se utiliza para diferenciar casos donde se deben aplicar saltos de linea e indentaciones.
+    \item \textbf{first}: indica si es el primer elemento del objeto padre. Esto sirve para diferenciar si se debe aplicar un salto de linea o no.
+    \item \textbf{initial}: indica si no tiene padre, o sea, si es el primer elemento. Esto es importante para los primeros elementos donde no se debe aplicar indentación.
+\end{itemize}
+
+A partir de estos datos podemos saber de qué forma se debe imprimir cada elemento. Este estado se va a ir pasando entre los no terminales y se va modificando. Por ejemplo, en el caso que vimos recién, \textit{saveStatusBeforeObject} guarda el estado actual y modifica el estado global; luego, cuando object termina se regresa al estado que se guardó previamente. Con esto conseguimos tener ese concepto de estado que se va heredando y modificando en base a las distintas producciones y luego al volver arriba se regresa a su estado original. Con esto, si por ejemplo tenemos un array dentro de un object, el array va a recibir un estado con mayor indentación y sus elementos se van a imprimir con esa indentación, mientras que al regresar al array se retoma la indentación del array.

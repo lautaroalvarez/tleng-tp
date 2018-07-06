@@ -1,0 +1,142 @@
+\section{Casos de prueba}
+
+\subsection{Objectos con arrays anidados}
+Es un caso raro porque al haber arrays anidados se dan casos con guiones repetidos en una misma linea, indentación que aumenta y disminuye y objetos dentro de arrays.
+
+\textbf{Entrada:}
+\begin{verbatim}
+{
+    "a": [
+        1,
+        {
+            "b": 2,
+            "c": "asd",
+            "d": []
+        },
+        [
+            [3],
+            4,
+            [
+                5,
+                6,
+                [
+                    [7]
+                ]
+            ]
+        ],
+        8
+    ]
+}
+\end{verbatim}
+
+\textbf{Salida del programa:}
+\begin{verbatim}
+a:
+- 1
+- b: 2
+  c: "asd"
+  d: []
+- - - 3
+  - 4
+  - - 5
+    - 6
+    - - - 7
+- 8
+\end{verbatim}
+
+\subsection{Objetos con arrays de objetos}
+Este caso estaba bueno para ver cómo se comportaba el programa con objectos, mezclados con arrays y objetos anidados. Al haber un objeto en una posición de un array la indentación de la segunda clave tiene que ser igual que la primera, pero sin guión.
+
+\textbf{Entrada:}
+\begin{verbatim}
+{
+  "a" :1,
+  "c":[1,2,3],
+  "b":[3,4,{ "n":[2,3,3,{"o":{"p":"fgh"}}],"m":"a"},3],
+  "d": {
+    "a": 1,
+    "b": "asd"
+  }
+}
+\end{verbatim}
+
+\textbf{Salida del programa:}
+\begin{verbatim}
+a: 1
+c:
+- 1
+- 2
+- 3
+b:
+- 3
+- 4
+- n:
+  - 2
+  - 3
+  - 3
+  - o:
+      p: "fgh"
+  m: "a"
+- 3
+d:
+  a: 1
+  b: "asd"
+\end{verbatim}
+
+\subsection{Array directo}
+Algo interesante de este caso es que es directamente un array, y no un objeto como veníamos probando. Además se incluye un objeto y un array vacíos. También pusimos todo en la misma linea y sin espacios.
+
+\textbf{Entrada:}
+\begin{verbatim}
+["asd",0,[],{"a":{},"b":1},[1,2]]
+\end{verbatim}
+
+\textbf{Salida del programa:}
+\begin{verbatim}
+- "asd"
+- 0
+- []
+- a: {}
+  b: 1
+- - 1
+  - 2
+\end{verbatim}
+
+\subsection{Clave sin comillas}
+En este caso ingresamos un objeto con una clave que no está entre comillas. Al no ser un string válido devuelve error.
+
+\textbf{Entrada:}
+\begin{verbatim}
+{a:1}
+\end{verbatim}
+
+\textbf{Salida del programa:}
+\begin{verbatim}
+Illegal character 'a'
+\end{verbatim}
+
+\subsection{Array mal cerrado}
+En este caso ingresamos un json con una llave faltante.
+
+\textbf{Entrada:}
+\begin{verbatim}
+{"a":[1,2,[]}
+\end{verbatim}
+
+\textbf{Salida del programa:}
+\begin{verbatim}
+Error de sintaxis!
+\end{verbatim}
+
+\subsection{Elemento de objeto vacío}
+En este caso ingresamos un json con un elemento vacío.
+
+\textbf{Entrada:}
+\begin{verbatim}
+{"a":"una prueba", ,}
+\end{verbatim}
+
+\textbf{Salida del programa:}
+\begin{verbatim}
+Error de sintaxis!
+\end{verbatim}
