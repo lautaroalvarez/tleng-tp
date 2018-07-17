@@ -27,7 +27,7 @@ def p_value_lasttype(p):
         if not status['first']:
             printIndentation()
         print("- ",end='')
-    print(p[1])
+    print(p[1].replace('"', ''))
 
 def p_value_object(p):
     'value : saveStatusBeforeObject object'
