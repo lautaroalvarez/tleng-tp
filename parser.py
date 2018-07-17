@@ -9,7 +9,8 @@ status = {
     'type': '',
     'parentType': '',
     'first': False,
-    'initial': True
+    'initial': True,
+    'keys': []
 }
 
 def p_initial(p):
@@ -20,7 +21,6 @@ def p_value_lasttype(p):
              | NUMBER
              | TRUE
              | FALSE
-             | NULL
     '''
     global status
     if status['type'] == 'array':
@@ -28,6 +28,15 @@ def p_value_lasttype(p):
             printIndentation()
         print("- ",end='')
     print(p[1].replace('"', ''))
+
+def p_value_null(p):
+    'value : NULL'
+    global status
+    if status['type'] == 'array':
+        if not status['first']:
+            printIndentation()
+        print("- ",end='')
+    print()
 
 def p_value_object(p):
     'value : saveStatusBeforeObject object'
@@ -73,6 +82,10 @@ def p_printString(p):
     'printString :'
     global status
     string = p[-1]
+    if string in status['keys']:
+        print("Claves duplicadas!")
+        exit(1)
+    status['keys'].append(string)
     stringAux = string.replace(' ', '')
     if stringAux[1] != '-':
         string = string.replace('"', '')
@@ -89,7 +102,8 @@ def p_saveStatusBeforeObject(p):
         'type': status['type'],
         'parentType': status['parentType'],
         'first': status['first'],
-        'initial': status['initial']
+        'initial': status['initial'],
+        'keys': status['keys']
     }
     if not status['initial'] and not status['type'] == 'array':
         status['indentation'] += 1
@@ -100,6 +114,7 @@ def p_saveStatusBeforeObject(p):
     status['parentType'] = status['type']
     status['type'] = 'object'
     status['initial'] = False
+    status['keys'] = []
 
 def p_printBeforeObjectNotEmpty(p):
     'printBeforeObjectNotEmpty :'
@@ -115,7 +130,8 @@ def p_saveStatusBeforeArray(p):
         'type': status['type'],
         'parentType': status['parentType'],
         'first': status['first'],
-        'initial': status['initial']
+        'initial': status['initial'],
+        'keys': status['keys']
     }
     if status['type'] == 'array':
         if not status['first']:
@@ -124,6 +140,7 @@ def p_saveStatusBeforeArray(p):
     status['parentType'] = status['type']
     status['type'] = 'array'
     status['initial'] = False
+    status['keys'] = []
 
 def p_printBeforeArrayNotEmpty(p):
     'printBeforeArrayNotEmpty :'
