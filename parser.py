@@ -108,7 +108,8 @@ def p_saveStatusBeforeObject(p):
     if not status['initial'] and not status['type'] == 'array':
         status['indentation'] += 1
     if status['type'] == 'array':
-        printIndentation()
+        if (not status['first']):
+            printIndentation()
         print('- ', end='')
     status['first'] = True
     status['parentType'] = status['type']

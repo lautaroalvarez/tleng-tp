@@ -22,8 +22,13 @@ Con esto pudimos definir código que se ejecuta luego de \textit{saveStatusBefor
 Ni bien inicia el parser definimos un estado. Este estado consta de los siguientes campos:
 
 \begin{itemize}
-    \item \textbf{indentation}: Contador de indentaciones. Esto es importante para poder indentar correctamente antes de escribir un valor.
-    \par Ejemplo:
+    \item \textbf{indentation}: Contador de indentaciones. Esto es importante para poder indentar correctamente antes de escribir un valor.\\
+    Se comienza seteando este campo en 0 y se incrementa en 1 en los siguientes casos:
+    \begin{itemize}
+      \item cuando se ingresa a un array
+      \item cuando se ingresa a un objeto siempre que se cumpla la condición \textit{intial == False \&\& type != `array'}: esto porque si se trata de el objeto inicial se empieza con indentación 0 (este se muestra en la explicación del campo \textit{initial}); y cuando se trata de una objeto dentro de un array tampoco se debe incrementar la indentación (ver ejemplo 2).
+    \end{itemize}
+    Ejemplo 1:
     \begin{verbatim}
 Entrada:
 {"k1":{"k2":1}}
@@ -33,10 +38,22 @@ Salida esperada:
 k1:
   k2: 1
     \end{verbatim}
-    En este ejemplo se ve el uso de \textit{indentation}. Al ingresar al objeto (valor de la clave \textit{k1}) se incrementa en 1 el valor de este campo. Entonces al momento de imprimir la clave \texit{k1} y el valor \texit{1} se agrega antes una cantidad de espacios igual a \textit{indentation * 2} y se consigue el resultado esperado.
+    En este ejemplo se ve el uso de \textit{indentation}. Al ingresar al objeto (valor de la clave \textit{k1}) se incrementa en 1 el valor de este campo. Entonces al momento de imprimir la clave \textit{k1} y el valor \textit{1} se agrega antes una cantidad de espacios igual a \textit{indentation * 2} y se consigue el resultado esperado.
+    Ejemplo 2:
+    \begin{verbatim}
+Entrada:
+[{"k1":1,"k2":"v2"},2]
+    \end{verbatim}
+    \begin{verbatim}
+Salida esperada:
+- k1: 1
+  k2: v2
+- 2
+    \end{verbatim}
+    En este ejemplo se que al inicial el array se incrementa la indentación en 1, pero luego, dentro del objeto se mantiene. Esto permite que las claves \textit{k1} y \textit{k2} se impriman alineadas con indentación 1. Si aumentaramos la indentación sin tener en cuenta las condiciones antes mencionadas no podríamos obtener este resultado.
 
     \item \textbf{type}: tipo del padre (array/objeto). Esto es importante para diferenciar la forma de imprimir el contenido. En el formato yaml, los objetos de un array deben imprimirse luego de un guión. Por eso necesitamos saber si son elementos de un array o un objeto.
-    \par Ejemplo:
+    Ejemplo:
     \begin{verbatim}
 Entrada:
 {"k1":["v1",2]}
@@ -49,9 +66,80 @@ k1:
     \end{verbatim}
     En este ejemplo se puede ver que al momento de imprimir los elementos \textit{"v1"} y \textit{1} verifica que \textit{type == `array'} y por esto imprime antes un guión.
 
-    \item \textbf{parentType}: tipo del padre del padre. Esto se utiliza para diferenciar casos donde se deben aplicar saltos de linea e indentaciones.
-    \item \textbf{first}: indica si es el primer elemento del objeto padre. Esto sirve para diferenciar si se debe aplicar un salto de linea o no.
-    \item \textbf{initial}: indica si no tiene padre, o sea, si es el primer elemento. Esto es importante para los primeros elementos donde no se debe aplicar indentación.
+    \item \textbf{parentType}: tipo del padre del padre. Esto se utiliza para diferenciar casos donde se deben aplicar saltos de linea e indentaciones. \\
+    Antes de ingresar a un objeto o un array se revisa la condición \textit{parentType != `array'}. Si esto se cumple se aplica un salto de linea y se imprime la indentación actual. Es importante diferenciar esto porque en el caso de ingresar a un elemento de array se imprime un guión (con su indentación adecuada), entonces no se debe imprimir un salto de linea, sino que la primer clave del objeto (o primer elemento del array) debe estar en la misma linea (siguiendo al guión) y no en una nueva linea (como pasa al iniciar un objeto/array en el resto de los casos).
+    Ejemplo:
+    \begin{verbatim}
+Entrada:
+{"k1":[1,{"k2":"v2"}]}
+    \end{verbatim}
+    \begin{verbatim}
+Salida esperada:
+k1:
+- 1
+- k2: v2
+    \end{verbatim}
+    En el ejemplo se ve el caso que mencionábamos. Al ingresar al objeto \textit{{k2: v2}} se tiene que \textit{type = `object'} y \textit{parentType = `array'}. Entonces no aplica un salto de linea y se consigue el resultado esperado.
+
+    \item \textbf{first}: indica si es el primer elemento del objeto padre. Esto sirve para diferenciar si se debe aplicar un salto de linea o no. \\
+    Se inicializa en True cuando:
+    \begin{itemize}
+      \item se ingresa a un objeto.
+      \item se ingresa a un array y se cumple \textit{parentType != `array'}: esto es porque al ser un elemento de un array padre, se tuvo que haber impreso un guión previo y no se debe aplicar un salto de linea (ni indentación).
+    \end{itemize}
+    Luego, al momento de imprimir un valor o una clave se verifica si \textit{first != True}. Si esto se cumple (además de la verificación previa de que \textit{type == `array'}) se imprime la indentación y se setea en False. También, al momento de ingresar a un array (en el caso que se aplica un salto de linea y se imprime la indentación) se aplica la misma lógica.
+    Ejemplo:
+    \begin{verbatim}
+Entrada:
+[[{"k1":1,"k2":"v2"}]]
+    \end{verbatim}
+    \begin{verbatim}
+Salida esperada:
+- - k1: 1
+    k2: v2
+    \end{verbatim}
+    En este ejemplo se ve el uso del campo para diferenciar ambas condiciones que mencionamos. Primero se puede ver como al ingresar al segundo array cumpliéndose \textit{parentType == `array'} no se aplica el salto de linea ni la indentación, sino que solo se imprime el guión. Además, al ingresar al objeto se diferencia la impresión de \textit{k1: 1} y \textit{k2: v2}. El primero se imprime seguido de los guiones, mientras que el segundo se imprimer luego de un salto de linea y las indentaciones necesarias.
+
+    \item \textbf{initial}: indica si no tiene padre, o sea, si es el primer elemento. Esto es importante para no incrementar la indentación al ingresar al primer objeto.
+    Al iniciar se setea en True y luego de ingresar a un objeto o array se setea en False.
+    Ejemplo:
+    \begin{verbatim}
+Entrada:
+{"k1": "v1", "k2": {"k3": 3}}
+    \end{verbatim}
+    \begin{verbatim}
+Salida esperada:
+k1: v1
+k2:
+  k3: 3
+    \end{verbatim}
+    En este ejemplo se ve como se utiliza el campo para diferenciar la indentación del primer objeto y el segundo. Al ingresar al primer objeto se verifica que \textit{initial == True}, no se incrementa la indentación y se setea \textit{initial = False}. Luego al ingresar al segundo objeto si se aplica el incremento y se logra el resultado esperado.
+
+    \item \textbf{keys}: almacena los nombres de las claves del objeto actual. Esto es importante para verificar que no se repitan claves. \\
+    Al ingresar a un objeto se setea \textit{keys = []}. Al momento de imprimir una clave se verifica si esa clave ya se encuentra en el campo. Si esto es así se imprime un mensaje de error y se finaliza. Sino, se agrega esta clave al campo y se continúa.
+    Ejemplo 1:
+    \begin{verbatim}
+Entrada:
+{"k1": "v1", "k1": 2}
+    \end{verbatim}
+    \begin{verbatim}
+Salida esperada:
+k1: v1
+Claves duplicadas!
+    \end{verbatim}
+    En este ejemplo se ve como al momento de imprimir la segunda clave (duplicada) se detecta esto y se imprime un error.
+    Ejemplo 2:
+    \begin{verbatim}
+Entrada:
+{"k1": "v1", "k2": {"k1": 1}}
+    \end{verbatim}
+    \begin{verbatim}
+Salida esperada:
+k1: v1
+k2:
+  k1: 1
+    \end{verbatim}
+    En este ejemplo se ve como al ingresar en el nuevo objeto (valor de la clave \textit{k2}) se setea \textit{keys = []} en el nuevo estado y esto permite que se tenga otra vez la clave \textit{k1}.
 \end{itemize}
 
 A partir de estos datos podemos saber de qué forma se debe imprimir cada elemento. Este estado se va a ir pasando entre los no terminales y se va modificando. Por ejemplo, en el caso que vimos recién, \textit{saveStatusBeforeObject} guarda el estado actual y modifica el estado global; luego, cuando object termina se regresa al estado que se guardó previamente. Con esto conseguimos tener ese concepto de estado que se va heredando y modificando en base a las distintas producciones y luego al volver arriba se regresa a su estado original. Con esto, si por ejemplo tenemos un array dentro de un object, el array va a recibir un estado con mayor indentación y sus elementos se van a imprimir con esa indentación, mientras que al regresar al array se retoma la indentación del array.

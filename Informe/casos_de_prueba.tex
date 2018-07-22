@@ -140,3 +140,22 @@ En este caso ingresamos un json con un elemento vacío.
 \begin{verbatim}
 Error de sintaxis!
 \end{verbatim}
+
+\subsection{Objeto con claves duplicadas}
+En este caso ingresamos un json con un objeto que tiene una clave duplicada.
+
+\textbf{Entrada:}
+\begin{verbatim}
+{
+  "a": "v1",
+  "b": 2,
+  "a": 3
+}
+\end{verbatim}
+
+\textbf{Salida del programa:}
+\begin{verbatim}
+a: v1
+b: 2
+Claves duplicadas!
+\end{verbatim}
