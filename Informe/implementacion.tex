@@ -20,9 +20,35 @@ $$saveStatusBeforeObject \xrightarrow{} \lambda$$
 Con esto pudimos definir código que se ejecuta luego de \textit{saveStatusBeforeObject}, que significa que se ejecuta justo antes de entrar en \textit{object}. En este caso lo que hace es guardar el estado actual y aplicarle cambios que \textit{object} va a "heredar". Ahora vamos a entrar mas en detalle en lo que llamamos estado.
 
 Ni bien inicia el parser definimos un estado. Este estado consta de los siguientes campos:
+
 \begin{itemize}
-    \item \textbf{indentation}: contador de indentaciones. Esto es importante para poder indentar correctamente antes de escribir un valor.
-    \item \textbf{type}: tipo del padre (array/objeto). Esto es importante para saber, por ejemplo, si se debe imprimir un guión (si su padre es un array).
+    \item \textbf{indentation}: Contador de indentaciones. Esto es importante para poder indentar correctamente antes de escribir un valor.
+    \par Ejemplo:
+    \begin{verbatim}
+Entrada:
+{"k1":{"k2":1}}
+    \end{verbatim}
+    \begin{verbatim}
+Salida esperada:
+k1:
+  k2: 1
+    \end{verbatim}
+    En este ejemplo se ve el uso de \textit{indentation}. Al ingresar al objeto (valor de la clave \textit{k1}) se incrementa en 1 el valor de este campo. Entonces al momento de imprimir la clave \texit{k1} y el valor \texit{1} se agrega antes una cantidad de espacios igual a \textit{indentation * 2} y se consigue el resultado esperado.
+
+    \item \textbf{type}: tipo del padre (array/objeto). Esto es importante para diferenciar la forma de imprimir el contenido. En el formato yaml, los objetos de un array deben imprimirse luego de un guión. Por eso necesitamos saber si son elementos de un array o un objeto.
+    \par Ejemplo:
+    \begin{verbatim}
+Entrada:
+{"k1":["v1",2]}
+    \end{verbatim}
+    \begin{verbatim}
+Salida esperada:
+k1:
+- v1
+- 2
+    \end{verbatim}
+    En este ejemplo se puede ver que al momento de imprimir los elementos \textit{"v1"} y \textit{1} verifica que \textit{type == `array'} y por esto imprime antes un guión.
+
     \item \textbf{parentType}: tipo del padre del padre. Esto se utiliza para diferenciar casos donde se deben aplicar saltos de linea e indentaciones.
     \item \textbf{first}: indica si es el primer elemento del objeto padre. Esto sirve para diferenciar si se debe aplicar un salto de linea o no.
     \item \textbf{initial}: indica si no tiene padre, o sea, si es el primer elemento. Esto es importante para los primeros elementos donde no se debe aplicar indentación.
